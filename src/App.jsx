@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
+import confetti from 'canvas-confetti'
 import './App.css'
 
 // 音名のデータ構造（学習ポイント：オブジェクトの配列）
@@ -232,58 +233,39 @@ function App() {
     return note ? note.color : '#667eea' // 見つからない場合はデフォルト色
   }
 
-  // 紙吹雪の要素を生成する関数（学習ポイント：配列の生成）
-  const createConfetti = () => {
-    const confetti = []
-    for (let i = 0; i < 50; i++) {
-      confetti.push({
-        id: i,
-        left: Math.random() * 100 + '%',
-        delay: Math.random() * 2,
-        duration: 4 + Math.random() * 4,
-        color: ['#C9171E', '#65318E', '#0054A6', '#ffff00', '#d29b3d', '#a0522d', '#504916', '#008000', '#B2D235', '#99a65a', '#808080', '#A44B4F'][Math.floor(Math.random() * 12)]
-      })
-    }
-    return confetti
-  }
+  // 正解時に canvas-confetti で紙吹雪を表示（物理演算でリアルな動き）
+  const confettiFiredRef = useRef(false)
+  const chordColors = ['#C9171E', '#65318E', '#0054A6', '#ffff00', '#d29b3d', '#a0522d', '#504916', '#008000', '#B2D235', '#99a65a', '#808080', '#A44B4F']
 
-  const [confetti, setConfetti] = useState([])
-
-  // 正解時に紙吹雪を表示（学習ポイント：useEffectで条件を監視）
-  // 画面外に落ち切るまで表示（最大 delay + duration 後に消す）
   useEffect(() => {
-    if (selectedNotes.length >= 3 && isCorrect) {
-      setConfetti(createConfetti())
-      const maxDelay = 2
-      const maxDuration = 8
-      const timer = setTimeout(() => {
-        setConfetti([])
-      }, (maxDelay + maxDuration) * 1000)
-      return () => clearTimeout(timer)
+    if (selectedNotes.length >= 3 && isCorrect && !confettiFiredRef.current) {
+      confettiFiredRef.current = true
+
+      const fire = (options = {}) => {
+        confetti({
+          particleCount: 80,
+          spread: 70,
+          origin: { y: 0.6 },
+          colors: chordColors,
+          ticks: 400,
+          gravity: 1.2,
+          scalar: 1.1,
+          ...options,
+        })
+      }
+
+      fire()
+      fire({ spread: 100, startVelocity: 35, origin: { x: 0.2, y: 0.6 } })
+      fire({ spread: 100, startVelocity: 35, origin: { x: 0.8, y: 0.6 } })
+    }
+    if (selectedNotes.length < 3 || !isCorrect) {
+      confettiFiredRef.current = false
     }
   }, [isCorrect, selectedNotes.length])
 
   return (
     <div className="app">
-      {/* 紙吹雪のコンテナ（学習ポイント：条件付きレンダリング） */}
-      {confetti.length > 0 && (
-        <div className="confetti-container">
-          {confetti.map((piece) => (
-            <div
-              key={piece.id}
-              className="confetti-piece"
-              style={{
-                left: piece.left,
-                backgroundColor: piece.color,
-                animationDelay: `${piece.delay}s`,
-                animationDuration: `${piece.duration}s`,
-              }}
-            />
-          ))}
-        </div>
-      )}
       <header className="app-header">
-        <h1>chord quiz</h1>
         <button
           type="button"
           id="settings-toggle"
@@ -299,6 +281,16 @@ function App() {
             <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42M19.78 4.22l-1.42 1.42M5.64 18.36l-1.42 1.42" />
           </svg>
         </button>
+        <h1>chord quiz</h1>
+        {selectedNotes.length >= 3 && isCorrect && (
+          <button
+            type="button"
+            className="next-question-button next-question-button--header"
+            onClick={handleNextQuestion}
+          >
+            next question
+          </button>
+        )}
       </header>
 
       <div
@@ -345,26 +337,28 @@ function App() {
         
         {/* 選択肢の表示（学習ポイント：mapメソッドで配列をレンダリング） */}
         <div className="answer-section">
-          <h3>select the notes of the chord</h3>
-          <div className="notes-grid">
-            {notes.map((note) => {
-              const isSelected = selectedNotes.includes(note.key)
-              return (
-                <button
-                  key={note.key}
-                  className={`note-button ${isSelected ? 'selected' : ''}`}
-                  style={{ backgroundColor: note.color }}
-                  onClick={() => handleNoteClick(note.key)}
-                >
-                  {note.label}
-                </button>
-              )
-            })}
+          <div className={`answer-choices ${selectedNotes.length >= 3 && isCorrect ? 'answer-choices--hidden' : ''}`}>
+            <h3>select the notes of the chord</h3>
+            <div className="notes-grid">
+              {notes.map((note) => {
+                const isSelected = selectedNotes.includes(note.key)
+                return (
+                  <button
+                    key={note.key}
+                    className={`note-button ${isSelected ? 'selected' : ''}`}
+                    style={{ backgroundColor: note.color }}
+                    onClick={() => handleNoteClick(note.key)}
+                  >
+                    {note.label}
+                  </button>
+                )
+              })}
+            </div>
           </div>
           
-          {/* 選択された音の表示（学習ポイント：条件付きレンダリングとコンポーネントの再利用） */}
+          {/* 選択された音の表示（正解時は大きく表示） */}
           {selectedNotes.length > 0 && (
-            <div className="selected-notes">
+            <div className={`selected-notes ${selectedNotes.length >= 3 && isCorrect ? 'selected-notes--correct' : ''}`}>
               <p>selected: </p>
               <div className="selected-notes-list">
                 {getSortedSelectedNotes().map((key) => {
@@ -418,17 +412,6 @@ function App() {
             </div>
           )}
 
-          {/* 次の問題ボタン（学習ポイント：イベントハンドラーと条件付きレンダリング） */}
-          {selectedNotes.length >= 3 && isCorrect && (
-            <div className="next-question-section">
-              <button 
-                className="next-question-button"
-                onClick={handleNextQuestion}
-              >
-                next question
-              </button>
-            </div>
-          )}
         </div>
 
       </div>

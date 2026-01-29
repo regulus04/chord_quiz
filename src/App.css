@@ -17,11 +17,11 @@
   font-size: 2em;
 }
 
-/* 歯車ボタン（他と同じホワイトシャドウの四角） */
+/* 歯車ボタン（左側・他と同じホワイトシャドウの四角） */
 .settings-gear-btn {
   position: absolute;
   top: 50%;
-  right: 0;
+  left: 0;
   transform: translateY(-50%);
   width: 44px;
   height: 44px;
@@ -163,6 +163,10 @@
   padding: 20px;
 }
 
+.answer-choices--hidden {
+  display: none;
+}
+
 .answer-section h3 {
   text-align: center;
   color: #555;
@@ -239,15 +243,30 @@
 /* 選択中の音を表示するバッジ（ボタンと同じデザイン） */
 .selected-note-badge {
   padding: 10px 15px;
-  border: 2px solid #333;
+  /* border: 2px solid #333; */
   border-radius: 10px;
   font-size: 1em;
   font-weight: bold;
   color: white;
   text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
   opacity: 1;
-  /* ボタンと同じスタイルだが、クリック不可 */
   pointer-events: none;
+}
+
+/* 正解時：selected の音を大きく表示 */
+.selected-notes--correct p {
+  font-size: 1.4em;
+}
+
+.selected-notes--correct .selected-notes-list {
+  gap: 14px;
+}
+
+.selected-notes--correct .selected-note-badge {
+  padding: 16px 24px;
+  font-size: 1.5em;
+  border-radius: 12px;
+  border-width: 3px;
 }
 
 /* 正解判定の結果表示（学習ポイント：条件付きスタイル） */
@@ -304,12 +323,6 @@
 }
 
 /* 次の問題ボタン（学習ポイント：ボタンスタイル） */
-.next-question-section {
-  margin-top: 20px;
-  text-align: center;
-  animation: fadeIn 0.3s ease-in;
-}
-
 .next-question-button {
   padding: 15px 40px;
   font-size: 1.2em;
@@ -335,37 +348,22 @@
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
 }
 
-/* 紙吹雪のアニメーション（学習ポイント：CSSアニメーションとposition） */
-.confetti-container {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-  z-index: 1000;
-  overflow: hidden;
-}
-
-.confetti-piece {
+/* ヘッダー右上の next question ボタン */
+.next-question-button--header {
   position: absolute;
-  width: 18px;
-  height: 12px;
-  top: -10px;
-  animation: confetti-fall linear forwards;
-  /* border-radius: 50%; */
+  top: 50%;
+  right: 0;
+  transform: translateY(-50%);
+  padding: 10px 20px;
+  font-size: 1em;
+  animation: fadeIn 0.3s ease-in;
 }
 
-@keyframes confetti-fall {
-  0% {
-    transform: translateY(0) rotate(0deg);
-    opacity: 1;
-  }
-  70% {
-    opacity: 0.6;
-  }
-  100% {
-    transform: translateY(120vh) rotate(720deg);
-    opacity: 0.2;
-  }
+.next-question-button--header:hover {
+  transform: translateY(calc(-50% - 2px));
 }
+
+.next-question-button--header:active {
+  transform: translateY(-50%);
+}
+

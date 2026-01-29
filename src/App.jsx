@@ -96,6 +96,9 @@ function App() {
   // 選択された音を管理するstate（学習ポイント：配列をstateで管理）
   const [selectedNotes, setSelectedNotes] = useState([])
 
+  // 設定アコーディオンの開閉状態
+  const [settingsOpen, setSettingsOpen] = useState(false)
+
   // 設定変更時に新しい問題を選ぶ（学習ポイント：useEffect）
   useEffect(() => {
     const availableChords = getAvailableChords()
@@ -237,7 +240,7 @@ function App() {
         id: i,
         left: Math.random() * 100 + '%',
         delay: Math.random() * 2,
-        duration: 2 + Math.random() * 2,
+        duration: 4 + Math.random() * 4,
         color: ['#C9171E', '#65318E', '#0054A6', '#ffff00', '#d29b3d', '#a0522d', '#504916', '#008000', '#B2D235', '#99a65a', '#808080', '#A44B4F'][Math.floor(Math.random() * 12)]
       })
     }
@@ -247,13 +250,15 @@ function App() {
   const [confetti, setConfetti] = useState([])
 
   // 正解時に紙吹雪を表示（学習ポイント：useEffectで条件を監視）
+  // 画面外に落ち切るまで表示（最大 delay + duration 後に消す）
   useEffect(() => {
     if (selectedNotes.length >= 3 && isCorrect) {
       setConfetti(createConfetti())
-      // 3秒後に紙吹雪を消す
+      const maxDelay = 2
+      const maxDuration = 8
       const timer = setTimeout(() => {
         setConfetti([])
-      }, 4000)
+      }, (maxDelay + maxDuration) * 1000)
       return () => clearTimeout(timer)
     }
   }, [isCorrect, selectedNotes.length])
@@ -277,11 +282,33 @@ function App() {
           ))}
         </div>
       )}
-      <h1>chord quiz</h1>
-      
-      {/* 出題設定セクション（学習ポイント：条件付きレンダリングとフォーム要素） */}
-      <div className="settings-section">
-        <h3>settings</h3>
+      <header className="app-header">
+        <h1>chord quiz</h1>
+        <button
+          type="button"
+          id="settings-toggle"
+          className="settings-gear-btn"
+          onClick={() => setSettingsOpen(!settingsOpen)}
+          aria-expanded={settingsOpen}
+          aria-controls="settings-panel"
+          aria-label="設定を開く"
+          title="settings"
+        >
+          <svg className="settings-gear-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+            <circle cx="12" cy="12" r="3" />
+            <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42M19.78 4.22l-1.42 1.42M5.64 18.36l-1.42 1.42" />
+          </svg>
+        </button>
+      </header>
+
+      <div
+        id="settings-panel"
+        className={`settings-section ${settingsOpen ? 'settings-section--open' : ''}`}
+        role="region"
+        aria-labelledby="settings-toggle"
+        aria-hidden={!settingsOpen}
+      >
+        <h3 className="settings-section-title">settings</h3>
         <div className="settings-options">
           <label className="setting-checkbox">
             <input
@@ -304,7 +331,7 @@ function App() {
           available: {getAvailableChords().length} types
         </p>
       </div>
-      
+
       <div className="quiz-container">
         <div className="question">
           <h2>question</h2>
@@ -403,6 +430,7 @@ function App() {
             </div>
           )}
         </div>
+
       </div>
     </div>
   )

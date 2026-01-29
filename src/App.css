@@ -5,11 +5,51 @@
   box-shadow: -5px -5px 15px #fff,5px 5px 15px #f7f7f7,inset 5px 5px 10px #fff,inset -5px -5px 10px #f7f7f7;
 }
 
-h1 {
+.app-header {
+  position: relative;
+  margin-bottom: 30px;
+}
+
+.app-header h1 {
   text-align: center;
   color: #333;
-  margin-bottom: 30px;
+  margin: 0;
   font-size: 2em;
+}
+
+/* 歯車ボタン（他と同じホワイトシャドウの四角） */
+.settings-gear-btn {
+  position: absolute;
+  top: 50%;
+  right: 0;
+  transform: translateY(-50%);
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: none;
+  border-radius: 12px;
+  background: rgb(251, 251, 251);
+  color: #333;
+  cursor: pointer;
+  box-shadow: -5px -5px 15px #fff, 5px 5px 15px #f7f7f7, inset 5px 5px 10px #fff, inset -5px -5px 10px #f7f7f7;
+  transition: box-shadow 0.3s ease, opacity 0.2s ease;
+}
+
+.settings-gear-btn:hover {
+  opacity: 0.9;
+}
+
+/* 開いている時は同じ4つのshadowで補間が効くようにする */
+.settings-gear-btn[aria-expanded="true"] {
+  box-shadow: -2px -2px 6px rgba(255, 255, 255, 0.6), 2px 2px 6px rgba(247, 247, 247, 0.6), inset 3px 3px 8px #e8e8e8, inset -3px -3px 8px #fff;
+}
+
+.settings-gear-icon {
+  width: 22px;
+  height: 22px;
 }
 
 .noto-music-regular {
@@ -25,21 +65,34 @@ h1 {
   font-style: normal;
 }
 
-/* 出題設定セクション（学習ポイント：フォーム要素のスタイル） */
+/* 出題設定セクション（歯車で開くパネル・出入りに transition） */
 .settings-section {
-  /* background: #fafafa; */
   background: rgb(251, 251, 251);
-  /* border: 1px solid #e0e0e0; */
-  box-shadow: -5px -5px 15px #fff,5px 5px 15px #f7f7f7,inset 5px 5px 10px #fff,inset -5px -5px 10px #f7f7f7;
   border-radius: 15px;
-  padding: 20px;
-  margin-bottom: 30px;
+  overflow: hidden;
+  max-height: 0;
+  opacity: 0;
+  padding: 0 20px;
+  margin-bottom: 0;
+  box-shadow: -3px -3px 10px rgba(255, 255, 255, 0.5), 3px 3px 10px rgba(247, 247, 247, 0.5);
+  pointer-events: none;
+  transition: max-height 0.35s ease, opacity 0.3s ease, padding 0.3s ease, margin 0.3s ease, box-shadow 0.3s ease;
 }
 
-.settings-section h3 {
+.settings-section--open {
+  max-height: 220px;
+  opacity: 1;
+  padding: 20px;
+  margin-bottom: 30px;
+  box-shadow: -5px -5px 15px #fff, 5px 5px 15px #f7f7f7, inset 5px 5px 10px #fff, inset -5px -5px 10px #f7f7f7;
+  pointer-events: auto;
+}
+
+.settings-section-title {
   color: #333;
-  margin-bottom: 15px;
+  margin: 0 0 15px 0;
   font-size: 1.2em;
+  font-weight: 600;
 }
 
 .settings-options {
@@ -128,7 +181,7 @@ h1 {
 /* 音名ボタンのスタイル（学習ポイント：CSSの擬似クラス） */
 .note-button {
   padding: 15px 10px;
-  border: 2px solid #333;
+  border: none;
   border-radius: 10px;
   font-size: 1.2em;
   font-weight: bold;
@@ -149,7 +202,7 @@ h1 {
 /* 選択されたボタンのスタイル（学習ポイント：条件付きクラス） */
 .note-button.selected {
   box-shadow: 0 0 20px rgba(255, 255, 255, 0.8);
-  transform: scale(1.1);
+  /* transform: scale(1.1); */
   opacity: 1;
 
 }
@@ -308,8 +361,11 @@ h1 {
     transform: translateY(0) rotate(0deg);
     opacity: 1;
   }
+  70% {
+    opacity: 0.6;
+  }
   100% {
-    transform: translateY(100vh) rotate(720deg);
-    opacity: 0;
+    transform: translateY(120vh) rotate(720deg);
+    opacity: 0.2;
   }
 }
